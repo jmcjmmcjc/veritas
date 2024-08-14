@@ -74,6 +74,7 @@ WHITESPACE			= ([ \t]+)
 "instanceof"		{ return keyword(Parser.INSTANCEOF);	}
 "scopy"				{ return keyword(Parser.SCOPY);			}
 "sealed"			{ return keyword(Parser.SEALED);		}
+"default"		    { return keyword(Parser.DEFAULT);       }
 "var"				{ return keyword(Parser.VAR);			}
 
 	// 识别操作符的规则

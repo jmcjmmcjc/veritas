@@ -315,6 +315,16 @@ public abstract class Tree {
     public static final int ARRAYREPEAT = ARRAYCONSTANT + 1;
     public static final int ARRAYCONCAT = ARRAYREPEAT + 1;
 
+    /**
+     * Array range access expressions, of type ArrayRange
+     */
+    public static final int ARRAYRANGE = ARRAYCONCAT + 1;
+
+    /**
+     * Array access with default value, of type ArrayElement
+     */
+    public static final int ARRAYELEMENT = ARRAYRANGE + 1;
+
     public Location loc;
     public int tag;
 
@@ -1259,6 +1269,78 @@ public abstract class Tree {
     }
 
     /**
+     * Access certain range of one array
+     */
+    public static class ArrayRange extends Expr {
+        public Expr array;
+        public Expr from;
+        public Expr to;
+
+        public ArrayRange(Expr array, Expr from, Expr to, Location loc) {
+            super(ARRAYRANGE, loc);
+            this.array = array;
+            this.from = from;
+            this.to = to;
+        }
+
+        @Override
+        public void accept(Visitor v) {
+            v.visitArrayRange(this);
+        }
+
+        @Override
+        public void printTo(IndentPrintWriter pw) {
+            pw.println("arrref");
+            pw.incIndent();
+            array.printTo(pw);
+
+            pw.println("range");
+            pw.incIndent();
+            from.printTo(pw);
+            to.printTo(pw);
+            pw.decIndent();
+
+            pw.decIndent();
+        }
+    }
+
+    /**
+     * Access certain element of one array
+     */
+    public static class ArrayElement extends Expr {
+        public Expr array;
+        public Expr index;
+        public Expr defaultValue;
+
+        public ArrayElement(Expr array, Expr index, Expr defaultValue, Location loc) {
+            super(ARRAYELEMENT, loc);
+            this.array = array;
+            this.index = index;
+            this.defaultValue = defaultValue;
+        }
+
+        @Override
+        public void accept(Visitor v) {
+            v.visitArrayElement(this);
+        }
+
+        @Override
+        public void printTo(IndentPrintWriter pw) {
+            pw.println("arrref");
+            pw.incIndent();
+            array.printTo(pw);
+            index.printTo(pw);
+
+            pw.println("default");
+            pw.incIndent();
+            defaultValue.printTo(pw);
+            pw.decIndent();
+
+            pw.decIndent();
+        }
+    }
+
+    /**
       * An array selection
       */
     public static class Indexed extends LValue {
@@ -1642,6 +1724,14 @@ public abstract class Tree {
         }
 
         public void visitArrayConstant(ArrayConstant that) {
+            visitTree(that);
+        }
+
+        public void visitArrayRange(ArrayRange that) {
+            visitTree(that);
+        }
+
+        public void visitArrayElement(ArrayElement that) {
             visitTree(that);
         }
     }
