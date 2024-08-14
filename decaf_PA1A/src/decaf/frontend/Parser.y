@@ -30,7 +30,7 @@ import java.util.*;
 %token PRINT  READ_INTEGER         READ_LINE
 %token LITERAL
 %token IDENTIFIER	  AND    OR    STATIC  INSTANCEOF
-%token SCOPY SEALED
+%token SCOPY SEALED VAR
 %token LESS_EQUAL   GREATER_EQUAL  EQUAL   NOT_EQUAL
 %token '+'  '-'  '*'  '/'  '%'  '='  '>'  '<'  '.'
 %token ','  ';'  '!'  '('  ')'  '['  ']'  '{'  '}'
@@ -241,6 +241,10 @@ LValue          :	Receiver IDENTIFIER
                 	{
                 		$$.lvalue = new Tree.Indexed($1.expr, $3.expr, $1.loc);
                 	}
+		|	VAR IDENTIFIER
+                    	{
+                        	$$.lvalue = new Tree.DeductedVar($2.ident, $2.loc);
+                    	}
                 ;
 
 Call            :	Receiver IDENTIFIER '(' Actuals ')'

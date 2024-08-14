@@ -283,6 +283,11 @@ public abstract class Tree {
     public static final int OBJECTCOPY = PRINT + 1;
 
     /**
+     * Deducted variable expressions, of type DeductedVar.
+     */
+    public static final int DEDUCTEDVAR = OBJECTCOPY + 1;
+
+    /**
      * Tags for Literal and TypeLiteral
      */
     public static final int VOID = 0; 
@@ -1196,6 +1201,29 @@ public abstract class Tree {
     }
 
     /**
+     * A variable with automatic deducted type
+     */
+    public static class DeductedVar extends LValue {
+
+        public String name;
+
+        public DeductedVar(String name, Location loc) {
+            super(DEDUCTEDVAR, loc);
+            this.name = name;
+        }
+
+        @Override
+        public void accept(Visitor v) {
+            v.visitDeductedVar(this);
+        }
+
+        @Override
+        public void printTo(IndentPrintWriter pw) {
+            pw.println("var " + name);
+        }
+    }
+
+    /**
       * A constant value given literally.
       * @param value value representation
       */
@@ -1452,6 +1480,10 @@ public abstract class Tree {
         }
 
         public void visitIndexed(Indexed that) {
+            visitTree(that);
+        }
+
+        public void visitDeductedVar(DeductedVar that) {
             visitTree(that);
         }
 
