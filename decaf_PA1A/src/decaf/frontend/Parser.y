@@ -30,7 +30,7 @@ import java.util.*;
 %token PRINT  READ_INTEGER         READ_LINE
 %token LITERAL
 %token IDENTIFIER	  AND    OR    STATIC  INSTANCEOF
-%token SCOPY SEALED VAR
+%token SCOPY SEALED VAR GUARD_SEPARATOR
 %token LESS_EQUAL   GREATER_EQUAL  EQUAL   NOT_EQUAL
 %token '+'  '-'  '*'  '/'  '%'  '='  '>'  '<'  '.'
 %token ','  ';'  '!'  '('  ')'  '['  ']'  '{'  '}'
@@ -202,6 +202,7 @@ Stmt		    :	VariableDef
                 |	IfStmt
                 |	WhileStmt
                 |	ForStmt
+                |	GuardedStmt
                 |	ReturnStmt ';'
                 |	PrintStmt ';'
                 |   OCStmt ';'
@@ -427,6 +428,41 @@ ReturnStmt      :	RETURN Expr
                 	{
                 		$$.stmt = new Tree.Return(null, $1.loc);
                 	}
+                ;
+
+GuardedStmt     :   IF '{' IfBranchClause '}'
+                    {
+                        $$.stmt = new Tree.GuardedIf($3.slist, $1.loc);
+                    }
+                ;
+
+IfBranchClause  :   IfBranchList GuardedSubStmt
+                    {
+                        $$.slist = $1.slist;
+                        $$.slist.add($2.stmt);
+                    }
+				|	/* empty */
+					{
+						$$ = new SemValue();
+						$$.slist = new ArrayList<Tree>();
+					}
+                ;
+
+IfBranchList    :   IfBranchList GuardedSubStmt GUARD_SEPARATOR
+                    {
+                        $$.slist.add($2.stmt);
+                    }
+				|	/* empty */
+					{
+						$$ = new SemValue();
+						$$.slist = new ArrayList<Tree>();
+					}
+                ;
+
+GuardedSubStmt  :   Expr ':' Stmt
+                    {
+                        $$.stmt = new Tree.GuardedSub($1.expr, $3.stmt, $2.loc);
+                    }
                 ;
 
 PrintStmt       :	PRINT '(' ExprList ')'
