@@ -30,7 +30,7 @@ import java.util.*;
 %token PRINT  READ_INTEGER         READ_LINE
 %token LITERAL
 %token IDENTIFIER	  AND    OR    STATIC  INSTANCEOF
-%token SCOPY SEALED VAR GUARD_SEPARATOR
+%token SCOPY SEALED VAR GUARD_SEPARATOR ARRAY_REPEAT
 %token LESS_EQUAL   GREATER_EQUAL  EQUAL   NOT_EQUAL
 %token '+'  '-'  '*'  '/'  '%'  '='  '>'  '<'  '.'
 %token ','  ';'  '!'  '('  ')'  '['  ']'  '{'  '}'
@@ -39,6 +39,8 @@ import java.util.*;
 %left AND 
 %nonassoc EQUAL NOT_EQUAL
 %nonassoc LESS_EQUAL GREATER_EQUAL '<' '>'
+%right ARRAY_CONCAT
+%left  ARRAY_REPEAT
 %left  '+' '-'
 %left  '*' '/' '%'  
 %nonassoc UMINUS '!' 
@@ -315,6 +317,14 @@ Expr            :	LValue
                 	{
                 		$$.expr = new Tree.Binary(Tree.OR, $1.expr, $3.expr, $2.loc);
                 	}
+                |   Expr ARRAY_REPEAT Expr
+                    {
+                        $$.expr = new Tree.Binary(Tree.ARRAYREPEAT, $1.expr, $3.expr, $2.loc);
+                    }
+                |   Expr ARRAY_CONCAT Expr
+                    {
+                        $$.expr = new Tree.Binary(Tree.ARRAYCONCAT, $1.expr, $3.expr, $2.loc);
+                    }
                 |	'(' Expr ')'
                 	{
                 		$$ = $2;
@@ -365,6 +375,28 @@ Constant        :	LITERAL
                 	{
 						$$.expr = new Null($1.loc);
 					}
+		|	ArrayConstant
+                ;
+
+ArrayConstant   :   '[' ConstantList ']'
+                    {
+                        $$.expr = new Tree.ArrayConstant($2.elist, $2.loc);
+                    }
+                |   '[' ']'
+                    {
+                        $$.expr = new Tree.ArrayConstant(new ArrayList<Tree.Expr>(), $2.loc);
+                    }
+                ;
+
+ConstantList    :   ConstantList ',' Constant
+                    {
+                        $$.elist.add($3.expr);
+                    }
+                |	Constant
+                    {
+                        $$.elist = new ArrayList<Tree.Expr>();
+                        $$.elist.add($1.expr);
+                    }
                 ;
 
 Actuals         :	ExprList
