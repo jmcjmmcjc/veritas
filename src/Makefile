@@ -48,7 +48,7 @@ ASM     = asm/offset_counter.o asm/riscv_md.o asm/riscv_frame_manager.o
 FRONTEND = scanner.o parser.o
 TRANSLATION     = translation/translation.o translation/build_sym.o translation/type_check.o
 DATAFLOW = tac/dataflow.o
-OBJS    = main.o compiler.o \
+OBJS    = main.o compiler.o 3rdparty/boehmgc.o \
 	  options.o error.o misc.o \
           $(AST) $(TYPE) $(SYMTAB) $(SCOPE) $(TAC) $(ASM) \
 	  $(FRONTEND) $(TRANSLATION) $(DATAFLOW)
@@ -73,6 +73,7 @@ clean:
 compiler.o: config.hpp 3rdparty/boehmgc.hpp define.hpp 3rdparty/list.hpp
 compiler.o: error.hpp ast/ast.hpp scope/scope.hpp scope/scope_stack.hpp
 compiler.o: 3rdparty/stack.hpp tac/tac.hpp 3rdparty/set.hpp asm/riscv_md.hpp
+3rdparty/boehmgc.o: 3rdparty/boehmgc.hpp
 compiler.o: asm/mach_desc.hpp asm/riscv_frame_manager.hpp compiler.hpp
 compiler.o: options.hpp tac/flow_graph.hpp 3rdparty/vector.hpp
 error.o: config.hpp 3rdparty/boehmgc.hpp define.hpp 3rdparty/list.hpp
